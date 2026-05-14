@@ -1,0 +1,42 @@
+# Rust
+target/
+**/*.rs.bk
+Cargo.lock.bak
+
+# Tauri
+crates/nextword-app/src-tauri/target/
+crates/nextword-app/src-tauri/gen/
+crates/nextword-app/dist/
+
+# Node
+node_modules/
+.npm/
+.pnpm-store/
+
+# Vite
+crates/nextword-app/dist/
+crates/nextword-app/.vite/
+
+# llama.cpp build artefacts (we keep the submodule but not its build dir)
+vendor/llama.cpp/build/
+
+# Models are downloaded at runtime (large GGUF files)
+models/*
+!models/.gitkeep
+
+# Built sidecar binaries (cached locally)
+binaries/*
+!binaries/.gitkeep
+
+# Logs and OS junk
+*.log
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Local env
+.env
+.env.local

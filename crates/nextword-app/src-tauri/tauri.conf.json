@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.tauri.app/config/2.0.0",
+  "productName": "NextWord",
+  "version": "0.1.0",
+  "identifier": "com.cobanov.nextword",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "NextWord",
+        "width": 480,
+        "height": 360,
+        "resizable": false,
+        "fullscreen": false,
+        "center": true,
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
+    },
+    "macOSPrivateApi": true
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app", "dmg"],
+    "category": "Productivity",
+    "shortDescription": "System-wide local-AI next-word suggestions",
+    "longDescription": "NextWord shows three local-LLM-generated word suggestions near your caret. Everything runs locally; nothing leaves your machine.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "externalBin": ["../../../binaries/llama-server"],
+    "macOS": {
+      "minimumSystemVersion": "13.0",
+      "entitlements": "entitlements.plist"
+    }
+  }
+}

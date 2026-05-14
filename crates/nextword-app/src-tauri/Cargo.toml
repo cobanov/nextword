@@ -1,0 +1,57 @@
+[package]
+name = "nextword-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "NextWord — system-wide local-AI word suggestions"
+default-run = "nextword-app"
+
+[lib]
+name = "nextword_app_lib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "nextword-app"
+path = "src/main.rs"
+
+[[bin]]
+name = "predict_test"
+path = "src/bin/predict_test.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["macos-private-api", "tray-icon"] }
+tauri-plugin-shell = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+reqwest = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-appender = { workspace = true }
+futures = { workspace = true }
+bytes = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+parking_lot = { workspace = true }
+
+nextword-core = { path = "../../nextword-core" }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+nextword-macos = { path = "../../nextword-macos" }
+objc2 = { workspace = true }
+objc2-foundation = { workspace = true }
+objc2-app-kit = { workspace = true }
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
