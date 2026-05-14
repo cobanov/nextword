@@ -40,3 +40,4 @@ binaries/*
 # Local env
 .env
 .env.local
+target-test/

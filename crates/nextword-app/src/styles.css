@@ -40,6 +40,23 @@ body.main {
   font-size: 12px;
   opacity: 0.55;
   word-break: break-all;
+  white-space: pre-line;
+}
+
+.status #retry-btn {
+  margin-top: 16px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(64, 132, 248, 0.95);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.status #retry-btn:disabled {
+  opacity: 0.5;
+  cursor: progress;
 }
 
 body.floating {
