@@ -77,11 +77,18 @@ impl Predictor {
     pub async fn predict(&self, context: &str, cancel: CancellationToken) -> Result<Vec<String>> {
         let url = format!("{}/completion", self.config.base_url);
         let cfg = self.config.clone();
+        // llama-server stops at the first matched token in `stop`. If the
+        // prompt doesn't end with whitespace the model emits " word", and
+        // a leading-space stop token would cut us off after zero tokens.
+        // Normalize: trim trailing whitespace then re-append exactly one
+        // space, so the model continues with a bare word that ends at the
+        // next space/punctuation stop token.
+        let prompt = format!("{} ", context.trim_end());
 
         let mut tasks = Vec::with_capacity(cfg.variants);
         for i in 0..cfg.variants {
             let req = CompletionRequest {
-                prompt: context,
+                prompt: &prompt,
                 n_predict: cfg.n_predict,
                 temperature: cfg.temperature,
                 top_k: cfg.top_k,

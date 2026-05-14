@@ -41,11 +41,15 @@ fn clean_token(raw: &str) -> String {
     let trimmed = raw.trim_start();
     let mut out = String::with_capacity(trimmed.len());
     for c in trimmed.chars() {
-        if c.is_alphabetic() || c == '\'' {
+        if c.is_alphanumeric() || c == '\'' || c == '-' {
             out.push(c);
         } else {
             break;
         }
+    }
+    // Strip a trailing hyphen/apostrophe that came from a stop-token boundary.
+    while matches!(out.chars().last(), Some('-') | Some('\'')) {
+        out.pop();
     }
     out
 }
