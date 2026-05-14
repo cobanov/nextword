@@ -1981,6 +1981,7 @@ dependencies = [
  "anyhow",
  "core-foundation",
  "core-graphics 0.24.0",
+ "foreign-types-shared",
  "nextword-core",
  "objc2 0.5.2",
  "objc2-app-kit 0.2.2",

@@ -1,6 +1,7 @@
 //! Library entry-point for the Tauri app. Keeps main.rs thin and lets
 //! integration tests pull symbols from here.
 
+pub mod input;
 pub mod ipc;
 pub mod model_download;
 pub mod sidecar;
@@ -116,7 +117,45 @@ pub(crate) async fn bootstrap(app: AppHandle) -> anyhow::Result<()> {
     state.install_predictor(base_url);
 
     let _ = app.emit("status:update", serde_json::json!({"state": "ready"}));
+
+    // M3: install the keystroke listener. Requires Accessibility trust.
+    #[cfg(target_os = "macos")]
+    {
+        if check_and_prompt_ax_permission(&app) {
+            if let Err(e) = input::install(app.clone()) {
+                tracing::error!(error = %e, "failed to install input listener");
+                let _ = app.emit(
+                    "status:update",
+                    serde_json::json!({
+                        "state": "error",
+                        "message": format!("Input listener install failed: {e}"),
+                    }),
+                );
+            }
+        } else {
+            let _ = app.emit(
+                "status:update",
+                serde_json::json!({
+                    "state": "needs_ax_permission",
+                    "message": "NextWord needs Accessibility access. Open System Settings → Privacy → Accessibility and toggle NextWord on, then quit and relaunch.",
+                }),
+            );
+        }
+    }
+
     Ok(())
+}
+
+#[cfg(target_os = "macos")]
+fn check_and_prompt_ax_permission(_app: &AppHandle) -> bool {
+    use nextword_macos::permissions;
+    if permissions::is_trusted() {
+        return true;
+    }
+    // Pop the system dialog the first time so the user can grant access without
+    // hunting for it; subsequent launches just observe is_trusted().
+    permissions::prompt_if_needed();
+    permissions::is_trusted()
 }
 
 /// Re-emit sidecar:state events as status:update so the main window UI

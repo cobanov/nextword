@@ -13,6 +13,7 @@ path = "src/lib.rs"
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = { workspace = true }
 core-graphics = { workspace = true }
+foreign-types-shared = "0.3"
 objc2 = { workspace = true }
 objc2-foundation = { workspace = true }
 objc2-app-kit = { workspace = true }

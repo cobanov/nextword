@@ -5,6 +5,7 @@ type Status =
   | "starting"
   | "starting_sidecar"
   | "needs_model"
+  | "needs_ax_permission"
   | "ready"
   | "crashed"
   | "error";
@@ -22,7 +23,8 @@ const LABELS: Record<Status, string> = {
   starting: "starting…",
   starting_sidecar: "loading model…",
   needs_model: "model required",
-  ready: "ready",
+  needs_ax_permission: "accessibility access required",
+  ready: "ready — start typing in any app",
   crashed: "inference service crashed",
   error: "error",
 };
