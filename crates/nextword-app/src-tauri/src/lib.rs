@@ -121,41 +121,59 @@ pub(crate) async fn bootstrap(app: AppHandle) -> anyhow::Result<()> {
     // M3: install the keystroke listener. Requires Accessibility trust.
     #[cfg(target_os = "macos")]
     {
-        if check_and_prompt_ax_permission(&app) {
-            if let Err(e) = input::install(app.clone()) {
-                tracing::error!(error = %e, "failed to install input listener");
-                let _ = app.emit(
-                    "status:update",
-                    serde_json::json!({
-                        "state": "error",
-                        "message": format!("Input listener install failed: {e}"),
-                    }),
-                );
-            }
-        } else {
-            let _ = app.emit(
-                "status:update",
-                serde_json::json!({
-                    "state": "needs_ax_permission",
-                    "message": "NextWord needs Accessibility access. Open System Settings → Privacy → Accessibility and toggle NextWord on, then quit and relaunch.",
-                }),
-            );
-        }
+        let app_clone = app.clone();
+        tauri::async_runtime::spawn(async move {
+            wait_for_ax_then_install(app_clone).await;
+        });
     }
 
     Ok(())
 }
 
 #[cfg(target_os = "macos")]
-fn check_and_prompt_ax_permission(_app: &AppHandle) -> bool {
+async fn wait_for_ax_then_install(app: AppHandle) {
     use nextword_macos::permissions;
-    if permissions::is_trusted() {
-        return true;
+
+    if !permissions::is_trusted() {
+        // Pop the system dialog so the user can grant access without
+        // hunting for it. Then poll until they hit "Open System Settings"
+        // and toggle NextWord on.
+        permissions::prompt_if_needed();
+        let _ = app.emit(
+            "status:update",
+            serde_json::json!({
+                "state": "needs_ax_permission",
+                "message": "Open System Settings → Privacy → Accessibility, toggle NextWord on. Waiting…",
+            }),
+        );
+
+        loop {
+            tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+            if permissions::is_trusted() {
+                break;
+            }
+        }
     }
-    // Pop the system dialog the first time so the user can grant access without
-    // hunting for it; subsequent launches just observe is_trusted().
-    permissions::prompt_if_needed();
-    permissions::is_trusted()
+
+    tracing::info!("AX permission granted; installing keystroke listener");
+    match input::install(app.clone()) {
+        Ok(()) => {
+            let _ = app.emit(
+                "status:update",
+                serde_json::json!({"state": "ready"}),
+            );
+        }
+        Err(e) => {
+            tracing::error!(error = %e, "failed to install input listener");
+            let _ = app.emit(
+                "status:update",
+                serde_json::json!({
+                    "state": "error",
+                    "message": format!("Input listener install failed: {e}"),
+                }),
+            );
+        }
+    }
 }
 
 /// Re-emit sidecar:state events as status:update so the main window UI

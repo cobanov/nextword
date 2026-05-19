@@ -9,6 +9,8 @@ pub mod ax;
 #[cfg(target_os = "macos")]
 pub mod caret;
 #[cfg(target_os = "macos")]
+pub mod insert;
+#[cfg(target_os = "macos")]
 pub mod keytap;
 #[cfg(target_os = "macos")]
 pub mod permissions;

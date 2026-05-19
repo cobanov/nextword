@@ -41,3 +41,4 @@ binaries/*
 .env
 .env.local
 target-test/
+.claude/
